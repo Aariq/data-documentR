@@ -17,4 +17,12 @@ RoxygenNote: 7.1.0
 Depends: 
     R (>= 2.10)
 Suggests: 
-    testthat
+    testthat,
+    here
+Imports: 
+    readr,
+    glue,
+    crayon,
+    lubridate,
+    purrr,
+    rlang

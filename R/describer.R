@@ -7,14 +7,14 @@
 #' @return a list
 #' @import glue
 #' @import crayon
-#' @importFrom purrr map2
+#' @importFrom purrr map2 pluck
 #' @importFrom lubridate tz
 #' @importFrom rlang as_name enquo
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' describe(mtcars)
+#' describe(example)
 #' }
 describe <- function(df){
   dfname <- as_name(enquo(df))
@@ -82,21 +82,73 @@ describe <- function(df){
 }
 
 
-docr <- function(x, path) {
-  x <- pluck(out, 2)
+#' Create metadata string
+#'
+#' @param x
+#'
+#' @return a string that could be written to a .md document.
+#' @import glue
+#' @import purrr
+#' @export
+#'
+#' @examples
+#' docr(out)
+docr <- function(x) {
+  x <- purrr::pluck(out, 2)
   descriptions <- map_chr(x, as_mapper("desc"))
   details <- map(x, as_mapper("details"))
 
-
-  write_lines(
-    paste0(glue("## Description\n
+    paste0(glue("### Description\n
 {out$gen_desc}\n
-## Columns:\n\n
+### Columns:\n\n
 "),
            glue_collapse(glue("`{names(x)}` : {descriptions}\n
 - {details}\n\n
- "))),
-    path)
+ ")))
 }
 
-docr(out, here::here("test.md"))
+
+
+
+#' Simultaneously save a data frame and it's metadata.
+#'
+#' @param x a data frame to write to disk
+#' @param path path or connection to write to
+#' @param meta name for the metadata document
+#' @param desc if you've already saved a metadata object, you could pass this in here.  Otherwise, you'll be prompted to describe the data frame you are attempting to write.  Used mostly for testing purposes internally.
+#' @param ... other arguments passed to \code{\link[readr]{write_csv}}
+#'
+#' @return
+#' @importFrom readr write_csv
+#' @import glue
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' library(here)
+#' write_doc_csv(trees, here("data", "trees.csv"))
+#' }
+write_doc_csv <- function(x, path, meta = "METADATA.md", desc = NULL, ...) {
+  # prompt for metadata
+  if (!is.null(desc)) {
+    meta <- desc
+  } else {
+    meta <- describe(x)
+  }
+  # convert to string
+  meta_str <- docr(meta)
+  # build path for metadata file
+  meta_path <- file.path(dirname(path), "METADATA.md")
+  # write to metadata file
+    # start with file name, then add meta_str
+  filename <- basename(path)
+  # check if this file has already been documented?
+  write_lines(
+    glue("## Filename: {filename} \n {meta_str}"),
+    meta_path,
+    append = TRUE
+  )
+
+  # pass the rest to write_csv()
+  write_csv(x, path, ...)
+}

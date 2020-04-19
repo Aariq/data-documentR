@@ -17,6 +17,6 @@ Prompts the user for short descriptions of a dataset as well as descriptions of 
 }
 \examples{
 \dontrun{
-describe(mtcars)
+describe(example)
 }
 }

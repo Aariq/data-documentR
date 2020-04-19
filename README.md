@@ -8,6 +8,8 @@ An idea for an R package to help your write metadata for .csv files and data.fra
 
 The core of the package is a function that prompts the user for metadata about data sets including a general description and column level details that depend on the data type (numeric, factor, date, etc.).  
 
+This package needs a better name and a convention for function names!
+
 This metadata can then be written as markdown or text alongside a .csv file(s).  Here's where I see this project going right now:
 
 ## Features/roadmap:
