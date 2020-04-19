@@ -4,10 +4,10 @@
 \alias{docr}
 \title{Create metadata string}
 \usage{
-docr(x)
+docr(meta)
 }
 \arguments{
-\item{x}{}
+\item{meta}{metadata object created by \code{describe}}
 }
 \value{
 a string that could be written to a .md document.
@@ -16,5 +16,5 @@ a string that could be written to a .md document.
 Create metadata string
 }
 \examples{
-docr(out)
+\dontrun{docr(out)}
 }

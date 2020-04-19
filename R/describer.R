@@ -1,6 +1,6 @@
 #' Create metadata for a data frame
 #'
-#' Prompts the user for short descriptions of a dataset as well as descriptions of the data contained in each of its columns.
+#' Prompts the user for short descriptions of a dataset as well as descriptions of the data contained in each of its columns
 #'
 #' @param df a data frame
 #'
@@ -10,6 +10,7 @@
 #' @importFrom purrr map2 pluck
 #' @importFrom lubridate tz
 #' @importFrom rlang as_name enquo
+#' @importFrom utils menu
 #' @export
 #'
 #' @examples
@@ -72,7 +73,7 @@ describe <- function(df){
       desc <- readline(prompt = "Description: ")
       details <- NULL
     }
-    return(list(desc = desc, details = details))
+    return(list(desc = desc, details = details, class_abrev = class_abrev))
   }
   cat("Enter a description for", blue(glue("`{dfname}`")),
 "Include details such as the when, where, how, why, and by whom it was collected: ")
@@ -84,7 +85,7 @@ describe <- function(df){
 
 #' Create metadata string
 #'
-#' @param x
+#' @param meta metadata object created by `describe`
 #'
 #' @return a string that could be written to a .md document.
 #' @import glue
@@ -92,17 +93,18 @@ describe <- function(df){
 #' @export
 #'
 #' @examples
-#' docr(out)
-docr <- function(x) {
-  x <- purrr::pluck(out, 2)
+#' \dontrun{docr(out)}
+docr <- function(meta) {
+  x <- purrr::pluck(meta, 2)
   descriptions <- map_chr(x, as_mapper("desc"))
   details <- map(x, as_mapper("details"))
+  class_abrev <- map(x, as_mapper("class_abrev"))
 
     paste0(glue("### Description\n
-{out$gen_desc}\n
+{meta$gen_desc}\n
 ### Columns:\n\n
 "),
-           glue_collapse(glue("`{names(x)}` : {descriptions}\n
+           glue_collapse(glue("`{names(x)} {class_abrev}`: {descriptions}\n
 - {details}\n\n
  ")))
 }
@@ -110,33 +112,44 @@ docr <- function(x) {
 
 
 
-#' Simultaneously save a data frame and it's metadata.
+#' Simultaneously save a data frame and its metadata.
 #'
 #' @param x a data frame to write to disk
 #' @param path path or connection to write to
 #' @param meta name for the metadata document
-#' @param desc if you've already saved a metadata object, you could pass this in here.  Otherwise, you'll be prompted to describe the data frame you are attempting to write.  Used mostly for testing purposes internally.
+#' @param desc if you've already saved a metadata object, you could pass this in
+#'   here.  Otherwise, you'll be prompted to describe the data frame you are
+#'   attempting to write.  Used mostly for testing purposes internally.
+#' @param write_func the suffix of the \code{\link[readr]{write_delim}} function
+#'   to use for writing the data frame.  Default is `"csv"` corresponding to
+#'   \code{\link[readr]{write_csv}}
 #' @param ... other arguments passed to \code{\link[readr]{write_csv}}
 #'
-#' @return
-#' @importFrom readr write_csv
+#' @return returns the input `x` invisibly
+#' @import readr
 #' @import glue
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' library(here)
-#' write_doc_csv(trees, here("data", "trees.csv"))
+#' write_with_meta(trees, here("data", "trees.csv"))
 #' }
-write_doc_csv <- function(x, path, meta = "METADATA.md", desc = NULL, ...) {
-  # prompt for metadata
+write_with_meta <-
+  function(x,
+           path,
+           meta = "METADATA.md",
+           desc = NULL,
+           write_func = c("csv", "csv2", "excel_csv", "excel_csv2", "tsv", "delim"),
+           ...) {
+    # prompt for metadata
   if (!is.null(desc)) {
-    meta <- desc
+    desc <- desc
   } else {
-    meta <- describe(x)
+    desc <- describe({{x}})
   }
   # convert to string
-  meta_str <- docr(meta)
+  meta_str <- docr(desc)
   # build path for metadata file
   meta_path <- file.path(dirname(path), "METADATA.md")
   # write to metadata file
@@ -148,7 +161,11 @@ write_doc_csv <- function(x, path, meta = "METADATA.md", desc = NULL, ...) {
     meta_path,
     append = TRUE
   )
+  # pass the rest to whatever write function the user wants to use, by default write_csv
+  write_func <- match.arg(write_func)
+  switch(write_func,
+         "csv" = write_csv(x, path, ...))
 
-  # pass the rest to write_csv()
-  write_csv(x, path, ...)
-}
+  }
+
+# write_with_meta(trees, here::here("trees.csv"))

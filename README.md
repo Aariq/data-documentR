@@ -10,6 +10,18 @@ The core of the package is a function that prompts the user for metadata about d
 
 This package needs a better name and a convention for function names!
 
+You can play with this development version at your own risk:
+
+```r
+devtools::install_github("Aariq/data-documentR")
+```
+
+Try something like this:
+
+```r
+write_with_meta(trees, here::here(trees.csv))
+```
+
 This metadata can then be written as markdown or text alongside a .csv file(s).  Here's where I see this project going right now:
 
 ## Features/roadmap:

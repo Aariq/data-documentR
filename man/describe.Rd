@@ -13,7 +13,7 @@ describe(df)
 a list
 }
 \description{
-Prompts the user for short descriptions of a dataset as well as descriptions of the data contained in each of its columns.
+Prompts the user for short descriptions of a dataset as well as descriptions of the data contained in each of its columns
 }
 \examples{
 \dontrun{

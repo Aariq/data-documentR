@@ -1,5 +1,5 @@
 Package: documentR
-Title: What the Package Does (One Line, Title Case)
+Title: Helps you write metadata to document .csv files
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Eric",
@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "scottericr@gmail.com",
            comment = c(ORCID = "0000-0002-7430-7879"))
-Description: What the package does (one paragraph).
+Description: Asks you for metadata about your data and writes it to a .md file.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: es
