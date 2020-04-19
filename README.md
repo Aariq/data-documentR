@@ -1,27 +1,46 @@
 # data-documentR
+
+<!-- badges: start -->
+  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+  <!-- badges: end -->
+  
 An idea for an R package to help your write metadata for .csv files and data.frames
 
-The idea is to make it as easy as possible for researchers to document their data.  The output would ideally be a .md file.  The input could be an entire data folder, a single (or multiple) .csv files, or R objects.  To use it on .csvs, the function(s) would read in the .csv with `read_csv()` and then prompt the user for a short description reminding them to include info like date and location of the data and maybe a licence or something?  Then, it would go through each coulumn in the tibble and prompt the user for metadata.  For numeric columns, it would ask for a description and units (maybe this could work with the `units` package?), for character columns it would ask for a description and then ask if it should be a factor.  For factors, it would prompt a description for each level (if there were, say <5 levels).  All of this would be converted to a nicely formatted .md file and output to the same directory as the .csv file.  If run on R objects, the function would write both the metatdata .md and the R objects as .csv or .rds files.
+The core of the package is a function that prompts the user for metadata about data sets including a general description and column level details that depend on the data type (numeric, factor, date, etc.).  
 
-## Example output
+This metadata can then be written as markdown or text alongside a .csv file(s).  Here's where I see this project going right now:
+
+## Features/roadmap:
+
+- Nags you every time you read or write a file to document the data (via wrappers to `read.csv`, `read_csv`, `write.csv`, `write_csv`, etc.?)
+- Allows documentation of R data.frames as you save them (i.e. a `write_and_document_csv()` type thing that prompts user for metadata and writes .csv AND matching .md)
+- Allows documentation of .csv's or folders of .csv's (i.e. a `document_csv()` that reads in csv's and prompts the user for metadata then writes matching .md's)
+  - Ideally one single METADATA.md per folder, with all .csv's documented.  Need ability to append this document rather than overwriting.
+- Memoisation?  Don't prompt the user unless the data object or .csv has changed since it was last documented? This might be beyond my abilities and may not be necessary.
+- RStudio plugin that writes a data dictionary for a data.frame in .Rmd (similar to `remedy` pacakge)
+- A funciton that checks the project code for any files read in or out and makes sure you've documented everything?
+
+## Example output markdown
 
 ### File: dataset1.csv
-### Description: plant growth data that was collected between june 2011 and july 2012 at the boston area climate experiment in Waltham, MA.
-### Columns:
+#### Description: 
 
-- `species`: The plant species used.  
+Plant growth data that was collected between june 2011 and july 2012 at the boston area climate experiment in Waltham, MA.
+
+#### Columns:
+
+- `species <fct>`: The plant species used.  
     Levels:
      - `AM`: Achillea milfolium
      - `PL`: Plantago lanceolata
-- `height`: Plant height from ground to longest leaf in cm
-- `date`: Date of measurment in ISO 8601 format \[this could be autmatically generated if the column is class `date`\]
-- `plot`: A plot ID to be used as a blocking factor
+- `height <dbl>`: Plant height from ground to longest leaf
+  - Units: cm
+- `flnum <int>`: Number of inflorescences
+- `date <Date>`: Date of measurment
+  - Format: ISO (yyy-mm-dd)
+  - Timezone: EDT
+- `plot <chr>`: A plot ID to be used as a blocking factor
 
 ### File: dataset2.csv
 ...
      
-## additional related ideas:
-
-- metadata for .R scripts (descriptions, what to they read in, what do they output--this could be automated)
-
-
